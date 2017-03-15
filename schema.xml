@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<xs:schema id="MyDataSet" xmlns="" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element msdata:IsDataSet="true" name="NewDataSet">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="Student">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SName" type="xs:string"/>
+							<xs:element name="Matric" type="xs:string"/>
+							<xs:element name="UName" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="University">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="UName" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Student of">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SName" type="xs:string"/>
+							<xs:element name="Matric" type="xs:string"/>
+							<xs:element name="UName" type="xs:string"/>
+							<xs:element minOccurs="0" name="Matriculation Date" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+		<xs:key msdata:PrimaryKey="true" name="NewDataSetKey1">
+			<xs:selector xpath=".//Student"/>
+			<xs:field xpath="SName"/>
+			<xs:field xpath="Matric"/>
+		</xs:key>
+		<xs:key msdata:PrimaryKey="true" name="NewDataSetKey2">
+			<xs:selector xpath=".//University"/>
+			<xs:field xpath="UName"/>
+		</xs:key>
+		<xs:key msdata:PrimaryKey="true" name="NewDataSetKey3">
+			<xs:selector xpath=".//Student of"/>
+			<xs:field xpath="SName"/>
+			<xs:field xpath="Matric"/>
+			<xs:field xpath="UName"/>
+		</xs:key>
+		<xs:keyref name="Student oftoStudentRef" refer="NewDataSetKey1">
+			<xs:selector xpath=".//Student of"/>
+			<xs:field xpath="SName"/>
+			<xs:field xpath="Matric"/>
+		</xs:keyref>
+		<xs:keyref name="StudenttoUniversityRef" refer="NewDataSetKey2">
+			<xs:selector xpath=".//Student"/>
+			<xs:field xpath="UName"/>
+		</xs:keyref>
+		<xs:keyref name="Student oftoUniversityRef" refer="NewDataSetKey2">
+			<xs:selector xpath=".//Student of"/>
+			<xs:field xpath="UName"/>
+		</xs:keyref>
+	</xs:element>
+</xs:schema>
