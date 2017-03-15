@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from Table import *
 from ConstraintType import *
+from XMLSchema import *
 
 def processEntity(entityList):
     tableEntityList = []
@@ -100,10 +101,15 @@ def getReferredColumn(entity_id, tableEntityList, nextId):
                 nextId = str(int(nextId) + 1)
                 columnName = column.getName()
                 data = [table.getId(), column.getId()]
-                constraint = Constraint(ConstraintType.FOREIGN_KEY)
-                constraint.setData(data)
                 column = Column(columnId, columnName)
-                column.addConstraint(constraint)
+                
+                foreignKeyConstraint = Constraint(ConstraintType.FOREIGN_KEY)
+                foreignKeyConstraint.setData(data)
+                column.addConstraint(foreignKeyConstraint)
+                
+                primKeyConstraint = Constraint(ConstraintType.PRIMARY_KEY)
+                column.addConstraint(primKeyConstraint)
+                
                 referredColumns.append(column)
 
     return referredColumns
@@ -115,6 +121,13 @@ def generateId(columnList):
         if colId >= genId:
             genId = colId + 1
     return str(genId)
+
+def generateXMLSchema(tableEntityList, tableRelationshipList):
+	f = open('schema.xml', 'w')
+	schema = XMLSchema(tableEntityList, tableRelationshipList)
+	f.write(schema.toString())
+	f.close()
+ 
 
 tree = ET.parse("template.xml")
 root = tree.getroot()
@@ -128,20 +141,46 @@ for child in root:
         relationshipList.append(child)
 
 primaryKeys = [[]] * len(entityList)
+dataTypes = [[]] * len(entityList)	#datatypes of primary keys
 weakEntityList = []
 
 tableEntityList = processEntity(entityList)
+tableRelationshipList = processRelationship(relationshipList, tableEntityList)  
+
 for table in tableEntityList:
-    print("\nENTITY TABLE:"+ table.getId(), table.getName())
-    
-    # Save primary key as TABLE_NAME.COLUMN_NAME
+	# Save primary key as TABLE_NAME.COLUMN_NAME
     keys = []
+    dataType = []
     for key in table.getPrimaryKey():
         keys.append(table.getName() + "." + key.getName())
+        dataType.append(key.getDataType())
 
     primaryKeys[int(table.getId()) - 1] = keys
-    print(primaryKeys)
+    dataTypes[int(table.getId()) - 1] = dataType
 
+    weakEntityList.append(table.getWeakEntityList())
+
+# Set weak entities foreign key(s)
+for weakEntities in weakEntityList:
+    for weakEntity in weakEntities:
+        weakEntity.setForeignKey(primaryKeys[int(weakEntity.getToEntity()) - 1])
+        weakEntity.setDataType(dataTypes[int(weakEntity.getToEntity()) - 1])
+
+generateXMLSchema(tableEntityList, tableRelationshipList)
+
+
+#for debugging
+print(primaryKeys)
+print("\n--- Weak Entities ---")
+for weakEntities in weakEntityList:
+    for weakEntity in weakEntities:
+        print("Weak Entity: (From: " + weakEntity.getFromEntity() + ", To: " + weakEntity.getToEntity() + ")")
+        print("Foreign Key: " + str(weakEntity.getForeignKey()))
+
+print("--- End Weak Entities ---")
+
+for table in tableEntityList:
+    print("\nENTITY TABLE:"+ table.getId(), table.getName())    
     columnList = table.getColumnList()
     for column in columnList:
         print("\nColumn:"+column.getId(), column.getName(), column.getDataType())
@@ -149,21 +188,7 @@ for table in tableEntityList:
         for constraint in constraintList:
             print(constraint.getConstraintType())
 
-    weakEntityList.append(table.getWeakEntityList())
 
-print("\n--- Weak Entities ---")
-
-# Set weak entities foreign key(s)
-for weakEntities in weakEntityList:
-    for weakEntity in weakEntities:
-        weakEntity.setForeignKey(primaryKeys[int(weakEntity.getToEntity()) - 1])
-        # For debugging
-        print("Weak Entity: (From: " + weakEntity.getFromEntity() + ", To: " + weakEntity.getToEntity() + ")")
-        print("Foreign Key: " + str(weakEntity.getForeignKey()))
-
-print("--- End Weak Entities ---")
-
-tableRelationshipList = processRelationship(relationshipList, tableEntityList)  
 for table in tableRelationshipList:
     print("\nRELATIONSHIP TABLE:"+ table.getId(), table.getName())
     columnList = table.getColumnList()
@@ -171,4 +196,7 @@ for table in tableRelationshipList:
         print("\nColumn:"+column.getId(), column.getName(), column.getDataType())
         constraintList = column.getConstraintList()
         for constraint in constraintList:
-            print(constraint.getConstraintType(), constraint.getData()[0], constraint.getData()[1])
+            if (constraint.getConstraintType() == ConstraintType.PRIMARY_KEY):
+                print(constraint.getConstraintType())
+            else:
+                print(constraint.getConstraintType(), constraint.getData()[0], constraint.getData()[1])

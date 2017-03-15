@@ -4,7 +4,7 @@ class WeakEntity:
         self.fromEntity = fromEntity
         self.toEntity = toEntity
         self.foreignKey = []
-        self.datatype = Type.STRING     # type from Type enum class(let default be STRING)
+        self.datatype = []    
 
     def getFromEntity(self):
         return self.fromEntity;
@@ -17,3 +17,9 @@ class WeakEntity:
 
     def getForeignKey(self):
         return self.foreignKey;
+
+    def setDataType(self, datatype):
+        self.datatype = datatype
+
+    def getDataType(self):
+        return self.datatype

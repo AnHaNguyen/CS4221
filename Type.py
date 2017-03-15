@@ -4,4 +4,4 @@ class Type(Enum):		#define data type of each column
 	NUMERIC = 2
 	DATE = 3
 	BOOLEAN = 4
-	OTHER = 5
+	INTEGER = 5
