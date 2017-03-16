@@ -123,7 +123,7 @@ def generateId(columnList):
     return str(genId)
 
 def generateXMLSchema(tableEntityList, tableRelationshipList):
-	f = open('schema.xml', 'w')
+	f = open('schema.xsd', 'w')
 	schema = XMLSchema(tableEntityList, tableRelationshipList)
 	f.write(schema.toString())
 	f.close()
