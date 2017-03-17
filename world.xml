@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<database name="world">
+<table_structure name="City">
+<field Field="ID" Type="int(11)" Null="NO" Key="PRI" Extra="auto_increment" />
+<field Field="Name" Type="char(35)" Null="NO" Key="" Default="" Extra="" />
+<field Field="CountryCode" Type="char(3)" Null="NO" Key="" Default="" Extra="" />
+<field Field="District" Type="char(20)" Null="NO" Key="" Default="" Extra="" />
+<field Field="Population" Type="int(11)" Null="NO" Key="" Default="0" Extra="" />
+<key Table="City" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="ID"
+Collation="A" Cardinality="4079" Null="" Index_type="BTREE" Comment="" />
+<options Name="City" Engine="MyISAM" Version="10" Row_format="Fixed" Rows="4079"
+Avg_row_length="67" Data_length="273293" Max_data_length="18858823439613951"
+Index_length="43008" Data_free="0" Auto_increment="4080"
+Create_time="2007-03-31 01:47:01" Update_time="2007-03-31 01:47:02"
+Collation="latin1_swedish_ci" Create_options="" Comment="" />
+</table_structure>
+</database>
+</mysqldump>
