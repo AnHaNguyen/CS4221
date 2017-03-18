@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+    <head>   
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>ER2XML Schema Editor Powered by Django</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
+        <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> -->
+        <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
+        <link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+        <!-- Internet Explorer HTML5 enabling code: -->
+        <!--[if IE]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <style type="text/css">
+        .clear {
+          zoom: 1;
+          display: block;
+        }
+        </style>
+        <![endif]-->
+    </head>
+    
+    <body>    	
+    	<section id="page">
+            <header>
+                <hgroup>
+                    <h1>ER2XML Editor</h1>
+                    <h3>by Team 19</h3>
+                </hgroup>                               
+                <nav class="clear">
+                    <ul>
+                        <li><a href="{% url 'upload_model' %}">Upload Model</a></li>
+                        <li><a href="{% url 'model_list' %}">Existing Models</a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <section id="articles">
+                <div class="line"></div>
+                {% block content %}
+                {% endblock %}  
+            </section>
+
+        <footer>
+           <div class="line"></div>
+           <p>Copyright 2017 - WANG Hancheng</p>
+           <a href="#" class="up">Go UP</a>
+        </footer>
+		
+        </section>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+        <script src="{% static 'js/jquery.scrollTo-1.4.2/jquery.scrollTo-min.js' %}"></script>
+        <script src="{% static 'js/script.js' %}"></script>
+    </body>
+</html>

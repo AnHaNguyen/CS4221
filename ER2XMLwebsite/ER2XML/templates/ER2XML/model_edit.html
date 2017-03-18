@@ -1,0 +1,35 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+	{% for form in forms %}
+		<article>
+			<form action='{% url "list" %}' method="post" enctype="multipart/form-data">
+	            {% csrf_token %}
+	            <p>{{ form.non_field_errors }}</p>
+	            <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+	            <p>
+	                {{ form.docfile.errors }}
+	                {{ form.docfile }}
+	            </p>
+	            <p><input type="submit" value="Upload"/></p>
+	        </form>
+		</article>
+	    <article>
+		    <form method="POST" class="post-form">{% csrf_token %}
+		        {{ form.as_table }}
+		        <!-- <button type="submit" class="save btn btn-default">Save</button> -->
+	<!-- 	        {% for field in form %}
+				    {%if forloop.counter|divisibleby:"5" %}
+				        {#after 5 fields, somehow put elements in next row
+				         of table, paragraph, or using divs etc
+				        #}
+				    {%endif%}
+				    {{ field.label_tag }} {{field}}
+				{%endfor%} -->
+		    </form>
+		    <p></p>
+		    <button type="submit" class="save btn btn-default">Save</button>
+	    </article>
+	{% endfor %}
+	
+{% endblock %}

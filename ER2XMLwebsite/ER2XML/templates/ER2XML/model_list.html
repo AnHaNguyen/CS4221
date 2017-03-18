@@ -1,0 +1,11 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+    {% for model in models %}
+    	<article>
+            <h1><a href="{% url 'model_detail' pk=model.pk %}">{{ model.name }}</a></h1>
+            <br>
+            <p>{{ model.text|truncatechars:200  }}</p>
+        </article>
+    {% endfor %}
+{% endblock %}

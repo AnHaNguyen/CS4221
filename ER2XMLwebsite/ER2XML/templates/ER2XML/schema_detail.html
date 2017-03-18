@@ -1,0 +1,8 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+    <article>
+        <h1><a href="{% url 'schema_detail' pk=schema.pk %}">XML Schema for {{ schema.model.name }}</a></h1>
+        <p>{{ schema.text|linebreaksbr }}</p>
+    </article>
+{% endblock %}

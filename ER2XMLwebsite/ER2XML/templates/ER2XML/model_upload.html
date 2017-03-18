@@ -1,0 +1,24 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+	<article>
+		<form action='{% url "upload_model" %}' method="POST" class="post-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ docform.non_field_errors }}</p>
+            <p>{{ docform.docfile.label_tag }} {{ docform.docfile.help_text }}</p>
+            <p>
+                {{ docform.docfile.errors }}
+                {{ docform.docfile }}
+                <input type="submit" value="Upload"/>
+            </p>
+        </form>
+	</article>
+    <article>
+	    <form action='{% url "schema_create" %}' method="POST" class="post-form">{% csrf_token %}
+	        {{ erform.as_table }}
+	        <p></p>
+	    	<button type="submit" class="save btn btn-default">Save</button>
+	    </form>
+	    
+    </article>
+{% endblock %}
