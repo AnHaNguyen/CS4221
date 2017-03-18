@@ -18,7 +18,7 @@ If the environment is not set, install Bitnami Djangostack with SQLite clicked.
 
 Then run Use Bitnami Django Stack.
 
-Go to the ER2XML folder and run::
+Go to the ER2XMLwebsite folder and run::
 
     $ pip install -r requirements.txt
     $ python manage.py migrate ER2XML
