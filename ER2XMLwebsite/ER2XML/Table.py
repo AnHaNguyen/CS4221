@@ -1,6 +1,6 @@
-from Column import *
-from WeakEntity import *
-from ConstraintType import *
+from .Column import *
+from .WeakEntity import *
+from .ConstraintType import *
 class Table:
 	def __init__(self, tableId, name):
 		self.id = tableId			#table id as in xml file

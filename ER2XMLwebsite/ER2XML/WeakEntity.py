@@ -1,4 +1,4 @@
-from Type import *
+from .Type import *
 class WeakEntity:
     def __init__(self, fromEntity, toEntity):
         self.fromEntity = fromEntity

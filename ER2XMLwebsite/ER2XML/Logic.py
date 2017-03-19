@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
-from Table import *
-from ConstraintType import *
-from XMLSchema import *
+from .Table import *
+from .ConstraintType import *
+from .XMLSchema import *
 import argparse
 
 def processEntity(entityList):
@@ -128,15 +128,12 @@ def generateXMLSchema(tableEntityList, tableRelationshipList):
 	schema = XMLSchema(tableEntityList, tableRelationshipList)
 	f.write(schema.toString())
 	f.close()
- 
-if __name__ == '__main__':
-    # Environment Setting
-    parser = argparse.ArgumentParser()
-    parser.add_argument('inFileName', help='A required string as input file name')
-    args = parser.parse_args()
 
-    tree = ET.parse(args.inFileName)
-    root = tree.getroot()
+def parseXMLString(xmlString):
+    root = ET.fromstring(xmlString)
+    parseAndConvertXML(root)
+
+def parseAndConvertXML(root):
     entityList = []
     relationshipList = []
 
@@ -147,14 +144,14 @@ if __name__ == '__main__':
             relationshipList.append(child)
 
     primaryKeys = [[]] * len(entityList)
-    dataTypes = [[]] * len(entityList)	#datatypes of primary keys
+    dataTypes = [[]] * len(entityList)  #datatypes of primary keys
     weakEntityList = []
 
     tableEntityList = processEntity(entityList)
     tableRelationshipList = processRelationship(relationshipList, tableEntityList)  
 
     for table in tableEntityList:
-    	# Save primary key as TABLE_NAME.COLUMN_NAME
+        # Save primary key as TABLE_NAME.COLUMN_NAME
         keys = []
         dataType = []
         for key in table.getPrimaryKey():
@@ -206,3 +203,13 @@ if __name__ == '__main__':
                     print(constraint.getConstraintType())
                 else:
                     print(constraint.getConstraintType(), constraint.getData()[0], constraint.getData()[1])
+
+if __name__ == '__main__':
+    # Environment Setting
+    parser = argparse.ArgumentParser()
+    parser.add_argument('inFileName', help='A required string as input file name')
+    args = parser.parse_args()
+
+    tree = ET.parse(args.inFileName)
+    root = tree.getroot()
+    parseAndConvertXML(root)

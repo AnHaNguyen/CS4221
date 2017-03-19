@@ -4,6 +4,8 @@ from .forms import ERForm, TableForm, ColumnForm, ConstraintForm, DocumentForm, 
 from django.template import RequestContext
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+
+from .Logic import parseXMLString
 import tempfile
 import os
 
@@ -17,7 +19,10 @@ def upload_model(request):
             file = request.FILES['docfile']
             with tempfile.TemporaryFile() as tmp:
                 for chunk in file.chunks():
-                    tmp.write(chunk.replace('\n', '<br>'))
+                    #tmp.write(str(chunk).replace('\n', '<br>'))
+                    tmp.write(chunk)
+                    parseXMLString(chunk)
+
                 tmp.seek(0)
                 newmodel = ERModel(name=os.path.splitext(file.name)[0],text=tmp.read())
                 # newmodel.save()
@@ -54,6 +59,7 @@ def schema_detail(request, pk):
 def schema_edit(request, pk):
     model = get_object_or_404(ERModel, pk=pk)
     forms = {}
+    
     for table in model.tables.all():
         items = []
         for column in table.columns.all():

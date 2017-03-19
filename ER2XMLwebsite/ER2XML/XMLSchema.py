@@ -1,9 +1,9 @@
-from Table import *
-from Column import *
-from Constraint import *
-from ConstraintType import *
-from Type import *
-from WeakEntity import *
+from .Table import *
+from .Column import *
+from .Constraint import *
+from .ConstraintType import *
+from .Type import *
+from .WeakEntity import *
 import xml.dom.minidom
 
 class XMLSchema:

@@ -1,5 +1,5 @@
-from Type import *
-from Constraint import *
+from .Type import *
+from .Constraint import *
 class Column:
 	def __init__(self, colId, name):
 		self.id = colId				#column id as in xml file
