@@ -5,7 +5,8 @@ from django.template import RequestContext
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from .Logic import parseXMLString
+from .RelationalXMLSchema import generateXMLSchema
+from .Logic import parseXMLString, exportXMLToFile
 import tempfile
 import os
 
@@ -21,12 +22,17 @@ def upload_model(request):
                 for chunk in file.chunks():
                     #tmp.write(str(chunk).replace('\n', '<br>'))
                     tmp.write(chunk)
-                    parseXMLString(chunk)
 
                 tmp.seek(0)
                 newmodel = ERModel(name=os.path.splitext(file.name)[0],text=tmp.read())
-                # newmodel.save()
+                newmodel.save()
+                tables = parseXMLString(newmodel)
+                xmlString = generateXMLSchema(newmodel)
+                exportXMLToFile('schema.xsd', xmlString)
+
+                #newmodel.save()
             erform = ERForm(instance=newmodel)
+
             # return HttpResponseRedirect(reverse('upload_model'))
     else:
         docform = DocumentForm()
@@ -65,9 +71,9 @@ def schema_edit(request, pk):
         for column in table.columns.all():
             form = ColumnForm(instance=column)
             items.append(form)
-        for constraint in table.constraints.all():
-            form = ConstraintForm(instance=constraint)
-            items.append(form)
+        # for constraint in table.constraints.all():
+        #     form = ConstraintForm(instance=constraint)
+        #     items.append(form)
         forms[table.name]=items
     # if form.is_valid():
     #     model = form.save(commit=False)
@@ -79,6 +85,7 @@ def schema_edit(request, pk):
 
 def model_edit(request, pk):
     model = get_object_or_404(ERModel, pk=pk)
+    
     if request.method == "POST":
         form = PostForm(request.POST, instance=model)
         if form.is_valid():

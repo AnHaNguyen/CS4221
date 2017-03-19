@@ -1,7 +1,7 @@
 <data>
 <entity id="1" name="Student">
 
- <attribute id="1" name="SName" />
+ <attribute id="1" name="SName" type="string"/>
 
  <attribute id="2" name="Matric" />
 
