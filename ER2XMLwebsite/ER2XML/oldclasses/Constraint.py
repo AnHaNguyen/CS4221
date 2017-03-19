@@ -1,4 +1,4 @@
-from ConstraintType import *
+from .ConstraintType import *
 
 class Constraint:		#define each constraint
 	def __init__(self,constraintType):			

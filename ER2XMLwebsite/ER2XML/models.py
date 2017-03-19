@@ -27,8 +27,10 @@ class ERModel(models.Model):
         return self.name
 
 class Table(models.Model):
+    isEntity = models.BooleanField()
     name = models.CharField(max_length=16)
     model = models.ForeignKey('ER2XML.ERModel',related_name='tables')
+    tableId = models.CharField(max_length=3)
 
     def __str__(self):
         return self.name
@@ -52,9 +54,9 @@ class Column(models.Model):
     table = models.ForeignKey('ER2XML.Table',related_name='columns')
     name = models.CharField(max_length=16)
     tp = models.CharField(max_length = 10, choices = TYPE, default = XSDType.STRING)
-    minOccur = models.IntegerField(null=True)
-    maxOccur = models.IntegerField(null=True)
-    
+    minOccur = models.IntegerField(null=True, default = 0)
+    maxOccur = models.IntegerField(null=True, default = 2)
+    colId = models.CharField(max_length=3)
     def __str__(self):
         return self.name
 
@@ -70,8 +72,11 @@ class Constraint(models.Model):     #define each constraint
         choices = CONSTRAINT_TYPE,
         default = ConstraintType.NOT_NULL,
     )
-    column = models.ForeignKey('ER2XML.Column')
-    table = models.ForeignKey('ER2XML.Table', related_name='constraints')
+    column = models.ForeignKey('ER2XML.Column', related_name='constr')
+    #table = models.ForeignKey('ER2XML.Table', related_name='constraints')
+    #only use for foreignkey constr
+    referredTable = models.IntegerField(default = 0)
+    referredCol = models.IntegerField(default = 0)
 
 # class XMLAttribute(models.Model):
 #     xElement
