@@ -20,14 +20,16 @@ def upload_model(request):
             file = request.FILES['docfile']
             with tempfile.TemporaryFile() as tmp:
                 for chunk in file.chunks():
-                    #tmp.write(str(chunk).replace('\n', '<br>'))
-                    tmp.write(chunk)
+                    tmp.write(chunk.replace('\n',''))
+                   # tmp.write(chunk)
 
                 tmp.seek(0)
                 newmodel = ERModel(name=os.path.splitext(file.name)[0],text=tmp.read())
                 newmodel.save()
                 tables = parseXMLString(newmodel)
+                
                 xmlString = generateXMLSchema(newmodel)
+
                 exportXMLToFile('schema.xsd', xmlString)
 
                 #newmodel.save()
@@ -45,7 +47,7 @@ def schema_create(request):
         if form.is_valid():
             model = form.save(commit=False)
             model.save()
-            return redirect('schema_edit', pk=1)
+            return redirect('schema_edit', pk=model.pk)
     else:
         form = ERForm()
     return render(request, 'ER2XML/upload_model.html', {'form': form})
