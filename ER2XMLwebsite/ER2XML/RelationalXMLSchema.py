@@ -1,6 +1,6 @@
 from .models import XSDType, ConstraintType, Table, Column
+from xml.etree import ElementTree
 import xml.dom.minidom
-
 
 def generateXMLSchema(erModel):
 	tableList = erModel.tables.all()
@@ -47,6 +47,8 @@ def generateXMLSchema(erModel):
 	
 	xml_string += "</xs:element>"
 	xml_string += "</xs:schema>"
+	#if there is an error in xml.dom.minidom NoneType has no 'replace' function
+	#go to python27/Lib/xml/dom/minidom.py and comment line 294 + 295
 	dom = xml.dom.minidom.parseString(xml_string)
 	prettyString = dom.toprettyxml()
 	return prettyString
@@ -102,15 +104,15 @@ def convertForeignKey(name, referName, selector, foreignKeys):
 	return s
 
 def getXMLType(columnType):
-	if (columnType == XSDType.STRING.value):
+	if (columnType == XSDType.STRING):
 		xType = "xs:string"
-	elif (columnType == XSDType.NUMERIC.value):
+	elif (columnType == XSDType.NUMERIC):
 		xType = "xs:decimal"
-	elif (columnType == XSDType.DATE.value):
+	elif (columnType == XSDType.DATE):
 		xType = "xs:date"
-	elif (columnType == XSDType.BOOLEAN.value):
+	elif (columnType == XSDType.BOOLEAN):
 		xType = "xs:boolean"
-	elif (columnType == XSDType.INTEGER.value):
+	elif (columnType == XSDType.INTEGER):
 		xType = "xs:integer"
 	return xType
 
@@ -119,7 +121,7 @@ def getPrimaryKey(table):
     for column in table.columns.all():
         for constraint in column.constr.all():
             constraintType = constraint.constraintType
-            if (constraintType == ConstraintType.PRIMARY_KEY.value):
+            if (constraintType == ConstraintType.PRIMARY_KEY):
                 primKey.append(column)
     return primKey
 
@@ -128,7 +130,7 @@ def getForeignKeyToTable(table, tableId):
 	for column in table.columns.all():
 		constraintList = column.constr.all()
 		for constraint in constraintList:
-			if (constraint.constraintType == ConstraintType.FOREIGN_KEY.value):
+			if (constraint.constraintType == ConstraintType.FOREIGN_KEY):
 				referredTableId = constraint.referredTable
 				if (str(referredTableId) == tableId):
 					foreignKeys.append(column)			
@@ -144,3 +146,22 @@ class WeakEntity:
 
     def getToEntity(self):
         return self.toEntity;
+
+
+
+def indent(elem, level=0):
+    i = "\n" + level*"  "
+    j = "\n" + (level-1)*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for subelem in elem:
+            indent(subelem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = j
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = j
+    return elem        

@@ -33,7 +33,7 @@ def processEntity(entityList,erModel):
             isReferredAttribute = False;
             columnId = -1
             columnName = ""
-            columnType = XSDType.STRING.value
+            columnType = XSDType.STRING
             for name, value in attribute:
                 if (name == "id"):
                     columnId = int(value)
@@ -52,7 +52,7 @@ def processEntity(entityList,erModel):
                 column.save()
                 parsedKey = parsePrimaryKey(keyList, 0)      #use the first key as prim
                 if str(columnId) in parsedKey:
-                    primKey = Constraint(column = column, constraintType = ConstraintType.PRIMARY_KEY.value)
+                    primKey = Constraint(column = column, constraintType = ConstraintType.PRIMARY_KEY)
                     primKey.save()
 
         tableEntityList.append(table)   
@@ -65,7 +65,7 @@ def processEntity(entityList,erModel):
         for key in primKey:
             col = Column(table = originTable, colId = columnId, name = key.name, tp = key.tp)
             col.save()
-            foreignKey = Constraint(column = col, constraintType = ConstraintType.FOREIGN_KEY.value, referredTable = referredTable.tableId, referredCol = key.colId)
+            foreignKey = Constraint(column = col, constraintType = ConstraintType.FOREIGN_KEY, referredTable = referredTable.tableId, referredCol = key.colId)
             foreignKey.save()
             columnId = columnId + 1
 
@@ -99,7 +99,7 @@ def processRelationship(relationshipList, tableEntityList, erModel):
         for attribute in attributeList:
             columnId = -1
             columnName = ""
-            columnType = XSDType.STRING.value
+            columnType = XSDType.STRING
             isReferredAttribute = False
             isAggregate = False
             minOccur = 0
@@ -149,10 +149,10 @@ def getReferredColumn(entity_id, tableEntityList, nextId, originTable):
                 newColumn = Column(table = originTable, colId = columnId, name = columnName, tp = columnType)
                 newColumn.save()
 
-                foreignKeyConstraint = Constraint(column = newColumn, constraintType = ConstraintType.FOREIGN_KEY.value, referredTable = table.tableId, referredCol = column.colId)
+                foreignKeyConstraint = Constraint(column = newColumn, constraintType = ConstraintType.FOREIGN_KEY, referredTable = table.tableId, referredCol = column.colId)
                 foreignKeyConstraint.save()
 
-                primKeyConstraint = Constraint(column = newColumn, constraintType = ConstraintType.PRIMARY_KEY.value)
+                primKeyConstraint = Constraint(column = newColumn, constraintType = ConstraintType.PRIMARY_KEY)
                 primKeyConstraint.save()
                 
                 referredColumns.append(newColumn)
@@ -163,23 +163,23 @@ def getPrimaryKey(table):
     for column in table.columns.all():
         for constraint in column.constr.all():
             constraintType = constraint.constraintType
-            if (constraintType == ConstraintType.PRIMARY_KEY.value):
+            if (constraintType == ConstraintType.PRIMARY_KEY):
                 primKey.append(column)
     return primKey
 
 def parseType(tp):
     if (tp == 'string'):
-        return XSDType.STRING.value
+        return XSDType.STRING
     elif(tp == 'date'):
-        return XSDType.DATE.value
+        return XSDType.DATE
     elif (tp == 'integer'):
-        return XSDType.INTEGER.value
+        return XSDType.INTEGER
     elif (tp == 'decimal'):
-        return XSDType.DECIMAL.value
+        return XSDType.DECIMAL
     elif (tp == 'boolean'):
-        return XSDType.BOOLEAN.value
+        return XSDType.BOOLEAN
     elif (tp == 'short'):
-        return XSDType.SHORT.value
+        return XSDType.SHORT
 
 def generateId(columnList):
     genId = 1
@@ -225,20 +225,21 @@ def parseAndConvertXML(root, erModel):
     tableRelationshipList = processRelationship(relationshipList, tableEntityList, erModel)  
 
     for table in tableEntityList:
-        print("\nENTITY TABLE:"+ str(table.tableId), table.name)    
+        print("ENTITY TABLE:"+ str(table.tableId), table.name)    
         columnList = table.columns.all()
         for column in columnList:
-            print("\nColumn:"+ str(column.colId), column.name, column.tp)
+            print("Column:"+ str(column.colId), column.name, column.tp)
             constraintList = column.constr.all()
             for constraint in constraintList:
                 print(constraint.constraintType, constraint.referredTable, constraint.referredCol)
 
 
     for table in tableRelationshipList:
-        print("\nRELATIONSHIP TABLE:"+ str(table.tableId), table.name)
+        print("RELATIONSHIP TABLE:"+ str(table.tableId), table.name)
         columnList = table.columns.all()
         for column in columnList:
-            print("\nColumn:"+ str(column.colId), column.name, column.tp)
+            print(column.name)
+            print("Column:"+ str(column.colId), column.name, column.tp)
             constraintList = column.constr.all()
             for constraint in constraintList:
                 print(constraint.constraintType, constraint.referredTable, constraint.referredCol)
