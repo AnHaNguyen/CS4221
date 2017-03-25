@@ -13,7 +13,7 @@ def processEntity(entityList,erModel):
             if (name == "id"):
                 tableId = int(value)
             else:
-                tableName = value
+                tableName = value.replace(" ", "")
         table = Table(model = erModel, tableId = tableId, name = tableName, isEntity = True)
         table.save()
         
@@ -39,7 +39,7 @@ def processEntity(entityList,erModel):
                     columnId = int(value)
                 elif (name == "name"):
                     isReferredAttribute = False
-                    columnName = value
+                    columnName = value.replace(" ", "")
                 elif (name =="entity_id"):
                     referredEntity = value          #need to handle weak entity
                     isReferredAttribute = True
@@ -86,7 +86,7 @@ def processRelationship(relationshipList, tableEntityList, erModel):
             if (name == "id"):
                 tableId = int(value)
             else:
-                tableName = value
+                tableName = value.replace(" ", "")
         table = Table(model = erModel, tableId = tableId, name = tableName, isEntity = False)
         table.save()
 
@@ -108,7 +108,7 @@ def processRelationship(relationshipList, tableEntityList, erModel):
                 if (name == "name"):       
                     isReferredAttribute = False
                     isAggregate = False
-                    columnName = value
+                    columnName = value.replace(" ", "")
                     columnId = generateId(columnList)
                 elif (name == "type"):
                     columnType = parseType(value)
