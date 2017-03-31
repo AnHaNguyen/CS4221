@@ -4,7 +4,7 @@
     {% for key, value in forms.items %}
     	<article>
 	    	<h1> {{ key }} </h1>
-	    	<form action='{% url "schema_save" pk=1%}' method="POST" class="post-form">{% csrf_token %}
+	    	<form action='{% url "schema_save" pk=pk%}' method="POST" class="post-form">{% csrf_token %}
 	            {% for form in value %}
 	            	{{ form.as_p }}
 	            	<div class="line"></div>

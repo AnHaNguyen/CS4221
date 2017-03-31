@@ -1,11 +1,26 @@
 {% extends 'ER2XML/base.html' %}
 
 {% block content %}
+    <article>
+        <h4>User Manual</h4><p />
+        <p>
+            ER2XML Schema Generator generates an XML Schema from an ER model automatically. Interfaces are provided for the choice primary key, additional constraints, domains, nesting order, and setting customized types. 
+        </p>
+        <p>
+            To generate and customize an XML schema, there are four steps to go:
+            <ol>
+                <li> (Optional) Setting up the types to use in the XML schema. If not set, six default types will be included; </li>
+                <li> Upload the ER model XML file or simply paste the document to create a raw XML schema;</li>
+                <li> Customize the schema by choosing primary keys, deciding the nesting order, and adding additional constraints and domains; </li>
+                <li> Direct edit and export the XML schema file and/or DDT file.</li>
+            </ol>
+        </p>
+    </article>
 	<article>
+        <div><strong>Option 1:</strong> Upload your ER model XML document</div>
 		<form action='{% url "upload_model" %}' method="POST" class="post-form" enctype="multipart/form-data">
             {% csrf_token %}
             <p>{{ docform.non_field_errors }}</p>
-            <p>{{ docform.docfile.label_tag }} {{ docform.docfile.help_text }}</p>
             <p>
                 {{ docform.docfile.errors }}
                 {{ docform.docfile }}
@@ -14,11 +29,12 @@
         </form>
 	</article>
     <article>
-	    <form action='{% url "schema_create" %}' method="POST" class="post-form">{% csrf_token %}
+        <div><strong>Option 2:</strong> Or directly paste your model name and XML document here</div>
+        <p />
+	    <form action="{% url 'schema_create' %}" method="POST" class="post-form">{% csrf_token %}
 	        {{ erform.as_table }}
 	        <p></p>
 	    	<button type="submit" class="save btn btn-default">Save</button>
-	    </form>
-	    
+	    </form>	    
     </article>
 {% endblock %}

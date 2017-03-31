@@ -10,7 +10,6 @@ from .Logic import parseXMLString, exportXMLToFile
 import tempfile
 import os
 
-# @require_http_methods(['POST'])
 def upload_model(request):
     # Handle file upload
     if request.method == 'POST':
@@ -20,22 +19,13 @@ def upload_model(request):
             file = request.FILES['docfile']
             with tempfile.TemporaryFile() as tmp:
                 for chunk in file.chunks():
-                    tmp.write(chunk.replace('\n',''))
-                   # tmp.write(chunk)
-
+                    # tmp.write(chunk.replace('\n',''))
+                    tmp.write(chunk)
                 tmp.seek(0)
                 newmodel = ERModel(name=os.path.splitext(file.name)[0],text=tmp.read())
-                newmodel.save()
-                tables = parseXMLString(newmodel)
-                
-                xmlString = generateXMLSchema(newmodel)
-
-                exportXMLToFile('schema.xsd', xmlString)
-
-                #newmodel.save()
             erform = ERForm(instance=newmodel)
-
-            # return HttpResponseRedirect(reverse('upload_model'))
+        else:
+            erform = ERForm()
     else:
         docform = DocumentForm()
         erform = ERForm()
@@ -47,6 +37,7 @@ def schema_create(request):
         if form.is_valid():
             model = form.save(commit=False)
             model.save()
+            tables = parseXMLString(model)
             return redirect('schema_edit', pk=model.pk)
     else:
         form = ERForm()
@@ -64,7 +55,12 @@ def schema_detail(request, pk):
     schema = get_object_or_404(XMLSchema, pk=pk)
     return render(request, 'ER2XML/schema_detail.html', {'schema': schema})
 
-def schema_edit(request, pk):
+def schema_export(request,pk):
+    schema = get_object_or_404(XMLSchema, pk=pk)
+    exportXMLToFile(schema.model.name+'_schema.xsd', schema.text)
+    return render(request, 'ER2XML/schema_detail.html', {'schema': schema})
+
+def schema_edit(request,pk):
     model = get_object_or_404(ERModel, pk=pk)
     forms = {}
     
@@ -77,13 +73,14 @@ def schema_edit(request, pk):
         #     form = ConstraintForm(instance=constraint)
         #     items.append(form)
         forms[table.name]=items
+    print('Table number:'+str(len(forms)))
     # if form.is_valid():
     #     model = form.save(commit=False)
     #     model.save()
     if request.method == "POST":
         return redirect('schema_save', pk=model.pk)
     else:
-        return render(request, 'ER2XML/schema_edit.html', {'forms': forms})
+        return render(request, 'ER2XML/schema_edit.html', {'forms': forms, 'pk': model.pk})
 
 def model_edit(request, pk):
     model = get_object_or_404(ERModel, pk=pk)
@@ -104,7 +101,10 @@ def model_remove(request, pk):
     return redirect('model_list')
 
 def schema_save(request, pk):
-    schema= get_object_or_404(XMLSchema, pk=pk)
+    model = get_object_or_404(ERModel, pk=pk)
+    xmlString = generateXMLSchema(model)
+    schema= XMLSchema(model=model,text=xmlString)
+    schema.save()
     # if request.method == "POST":
     #     form = SchemaForm(request.POST, instance=schema)
     #     if form.is_valid():

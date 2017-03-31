@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^edit/(?P<pk>\d+)/$', views.schema_edit, name='schema_edit'),
     url(r'^edit/(?P<pk>\d+)/detail/$', views.schema_detail, name='schema_detail'),
     url(r'^edit/(?P<pk>\d+)/save/$', views.schema_save, name='schema_save'),
+    url(r'^edit/(?P<pk>\d+)/export/$', views.schema_export, name='schema_export'),
     url(r'^model/$', views.model_list, name='model_list'),
     url(r'^model/(?P<pk>\d+)/remove/$', views.model_remove, name='model_remove'),
     url(r'^model/(?P<pk>\d+)/$', views.model_detail, name='model_detail'),

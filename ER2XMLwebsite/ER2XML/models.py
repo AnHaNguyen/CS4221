@@ -1,9 +1,6 @@
 from django.db import models
 from enum import Enum
 
-# class Document(models.Model):
-#     docfile = models.FileField(upload_to='documents/')
-
 class ConstraintType(Enum): 
     NOT_NULL = "NN"
     UNIQUE = "UNI"
@@ -18,6 +15,14 @@ class XSDType(Enum):
     BOOLEAN = "xs:boolean"
     SHORT = "xs:short"
     # Pid = "empid"
+
+class Type(models.Model):
+    name = models.CharField(max_length=200)
+    text = models.CharField(max_length=16)
+    content = models.TextField(null=True)
+
+    def __str__(self):
+        return self.name
 
 class ERModel(models.Model):
     name = models.CharField(max_length=200)
@@ -77,9 +82,3 @@ class Constraint(models.Model):     #define each constraint
     #only use for foreignkey constr
     referredTable = models.IntegerField(default = 0)
     referredCol = models.IntegerField(default = 0)
-
-# class XMLAttribute(models.Model):
-#     xElement
-#     name
-#     type
-#     use

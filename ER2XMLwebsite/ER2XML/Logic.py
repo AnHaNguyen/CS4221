@@ -184,7 +184,7 @@ def parseType(tp):
 def generateId(columnList):
     genId = 1
     for column in columnList:
-        colId = column.colId
+        colId = int(column.colId)
         if colId >= genId:
             genId = colId + 1
     return genId
