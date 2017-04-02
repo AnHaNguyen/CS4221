@@ -94,6 +94,7 @@ def processEntity(entityList,erModel):
             parsedKey = key.split(",")
             colNames = ""
             for columnId in parsedKey:
+                print(table.name, columnId)
                 column = getColumnById(columnId, table)     #each columnId in key must refer to an existed column
                 colNames += column.name + ","
             colNames = colNames[:-1]
@@ -104,7 +105,7 @@ def processEntity(entityList,erModel):
 
 def getColumnById(columnId, table):
     for column in table.columns.all():
-        if (column.colId == int(columnId)):
+        if (column.colId == (columnId)):
             return column
     return ''
 
