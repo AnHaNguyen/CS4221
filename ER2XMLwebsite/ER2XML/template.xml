@@ -17,6 +17,8 @@
 
  <attribute id="1" name="UName" />
 
+ <attribute id="2" name="Address" />
+
  <key>1</key>
 
 </entity>

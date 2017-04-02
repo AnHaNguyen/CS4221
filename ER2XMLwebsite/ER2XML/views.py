@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import ERModel, Table, XMLSchema, Column, Constraint
+from .models import ERModel, Table, XMLSchema, Column, Constraint, Type
 from .forms import ERForm, TableForm, ColumnForm, ConstraintForm, DocumentForm, SchemaForm
 from django.template import RequestContext
 from django.http import JsonResponse

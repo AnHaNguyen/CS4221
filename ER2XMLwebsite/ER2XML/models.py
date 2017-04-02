@@ -58,7 +58,7 @@ class Column(models.Model):
     )
     table = models.ForeignKey('ER2XML.Table',related_name='columns')
     name = models.CharField(max_length=16)
-    tp = models.CharField(max_length = 10, choices = TYPE, default = XSDType.STRING)
+    tp = models.CharField(max_length = 10, default = XSDType.STRING)
     minOccur = models.IntegerField(null=True, default = 0)
     maxOccur = models.IntegerField(null=True, default = 2)
     colId = models.CharField(max_length=3)

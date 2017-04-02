@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ERModel, Table, Column, Constraint, XMLSchema
+from .models import ERModel, Table, Column, Constraint, XMLSchema, Type
 
 class ERForm(forms.ModelForm):
 
