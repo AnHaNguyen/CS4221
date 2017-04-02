@@ -1,10 +1,28 @@
 import xml.etree.ElementTree as ET
-from .models import Table, XMLSchema, Column, Constraint, XSDType, ConstraintType
+from .models import Table, XMLSchema, Column, Constraint, XSDType, ConstraintType, Key
 import argparse
+
+def setKey(table, key):
+    for column in table.columns.all():
+        constrList = column.constr.all()
+        for constraint in constrList:
+            if constraint.constraintType == ConstraintType.PRIMARY_KEY:
+                constraint.delete()
+                column.save()
+
+    idString = key.colIds
+    columnIds = idString.split(",")
+    for columnId in columnIds:
+        column = getColumnById(columnId, table)
+        constraint = Constraint(constraintType = ConstraintType.PRIMARY_KEY, column = column)
+        constraint.save()
+
 
 def processEntity(entityList,erModel):
     tableEntityList = []
     weakEntityList = [] # list of weak entities
+    tableKeyList = []
+    
     for entity in entityList:
         data = entity.items()
         tableId = 0
@@ -13,7 +31,7 @@ def processEntity(entityList,erModel):
             if (name == "id"):
                 tableId = int(value)
             else:
-                tableName = value
+                tableName = value.replace(" ", "")
         table = Table(model = erModel, tableId = tableId, name = tableName, isEntity = True)
         table.save()
         
@@ -26,8 +44,7 @@ def processEntity(entityList,erModel):
             else:
                 keyList.append(child.text)          #can retrieve key List after here
         
-        # for key in keyList:                   #let user choose prim key in keyList, in the first time parsed, we use first key as prim
-        #   parsedKey = key.split(",")      
+        tableKeyList.append(keyList)
 
         for attribute in attributeList:
             isReferredAttribute = False;
@@ -39,7 +56,7 @@ def processEntity(entityList,erModel):
                     columnId = int(value)
                 elif (name == "name"):
                     isReferredAttribute = False
-                    columnName = value
+                    columnName = value.replace(" ", "")
                 elif (name =="entity_id"):
                     referredEntity = value          #need to handle weak entity
                     isReferredAttribute = True
@@ -68,8 +85,29 @@ def processEntity(entityList,erModel):
             foreignKey = Constraint(column = col, constraintType = ConstraintType.FOREIGN_KEY, referredTable = referredTable.tableId, referredCol = key.colId)
             foreignKey.save()
             columnId = columnId + 1
+     
+    
+    for i in range(len(tableKeyList)):
+        table = tableEntityList[i]
+        keyList = tableKeyList[i]
+        for key in keyList:
+            parsedKey = key.split(",")
+            colNames = ""
+            for columnId in parsedKey:
+                print(table.name, columnId)
+                column = getColumnById(columnId, table)     #each columnId in key must refer to an existed column
+                colNames += column.name + ","
+            colNames = colNames[:-1]
+            newKey = Key(table = table, colIds = key, colNames = colNames)
+            newKey.save()
 
     return tableEntityList
+
+def getColumnById(columnId, table):
+    for column in table.columns.all():
+        if (column.colId == (columnId)):
+            return column
+    return ''
 
 def getTableById(tableId, tableList):
     for table in tableList:
@@ -86,7 +124,7 @@ def processRelationship(relationshipList, tableEntityList, erModel):
             if (name == "id"):
                 tableId = int(value)
             else:
-                tableName = value
+                tableName = value.replace(" ", "")
         table = Table(model = erModel, tableId = tableId, name = tableName, isEntity = False)
         table.save()
 
@@ -108,7 +146,7 @@ def processRelationship(relationshipList, tableEntityList, erModel):
                 if (name == "name"):       
                     isReferredAttribute = False
                     isAggregate = False
-                    columnName = value
+                    columnName = value.replace(" ", "")
                     columnId = generateId(columnList)
                 elif (name == "type"):
                     columnType = parseType(value)
@@ -224,6 +262,11 @@ def parseAndConvertXML(root, erModel):
     tableEntityList = processEntity(entityList, erModel)
     tableRelationshipList = processRelationship(relationshipList, tableEntityList, erModel)  
 
+    # table0 = tableEntityList[0]
+    # keys = table0.keys.all()
+    # key1 = keys[1]
+    # setKey(table0, key1)
+
     for table in tableEntityList:
         print("ENTITY TABLE:"+ str(table.tableId), table.name)    
         columnList = table.columns.all()
@@ -232,13 +275,13 @@ def parseAndConvertXML(root, erModel):
             constraintList = column.constr.all()
             for constraint in constraintList:
                 print(constraint.constraintType, constraint.referredTable, constraint.referredCol)
-
+        for key in table.keys.all():
+            print(str(key))
 
     for table in tableRelationshipList:
         print("RELATIONSHIP TABLE:"+ str(table.tableId), table.name)
         columnList = table.columns.all()
         for column in columnList:
-            print(column.name)
             print("Column:"+ str(column.colId), column.name, column.tp)
             constraintList = column.constr.all()
             for constraint in constraintList:

@@ -82,3 +82,16 @@ class Constraint(models.Model):     #define each constraint
     #only use for foreignkey constr
     referredTable = models.IntegerField(default = 0)
     referredCol = models.IntegerField(default = 0)
+
+class Key(models.Model):
+    table = models.ForeignKey('ER2XML.Table', related_name='keys')
+    colIds = models.CharField(max_length=10)    #for single key: "1", for composite key: "1,2"
+    colNames = models.CharField(max_length=50)  #for single key: "SName", for composite key: "SName,Matric"
+    def __str__(self):
+        return self.colNames
+
+# class XMLAttribute(models.Model):
+#     xElement
+#     name
+#     type
+#     use
