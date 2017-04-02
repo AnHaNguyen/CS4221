@@ -1,16 +1,20 @@
-from .models import XSDType, ConstraintType, Table, Column
+from .models import XSDType, ConstraintType, Table, Column, Type
 from xml.etree import ElementTree
 import xml.dom.minidom
 
 def generateXMLSchema(erModel):
 	tableList = erModel.tables.all()
 
-	xml_string = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-	xml_string += "<xs:schema id=\"MyDataSet\" xmlns=\"\" "
-	xml_string += "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
-	xml_string += "xmlns:msdata=\"urn:schemas-microsoft-com:xml-msdata\">"
-	xml_string += "<xs:element name=\"NewDataSet\" msdata:IsDataSet=\"true\">"
-	xml_string += "<xs:complexType>"
+	initial_xml_string = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+	initial_xml_string += "<xs:schema id=\"MyDataSet\" xmlns=\"\" "
+	initial_xml_string += "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
+	initial_xml_string += "xmlns:msdata=\"urn:schemas-microsoft-com:xml-msdata\">"
+	initial_xml_string += "<xs:element name=\"NewDataSet\" msdata:IsDataSet=\"true\">"
+
+	type_xml_string = addSimpleType(erModel)
+
+
+	xml_string = "<xs:complexType>"
 	xml_string += "<xs:choice maxOccurs=\"unbounded\">"
 
 	for table in tableList:
@@ -49,9 +53,23 @@ def generateXMLSchema(erModel):
 	xml_string += "</xs:schema>"
 	#if there is an error in xml.dom.minidom NoneType has no 'replace' function
 	#go to python27/Lib/xml/dom/minidom.py and comment line 294 + 295
-	dom = xml.dom.minidom.parseString(xml_string)
+	dom = xml.dom.minidom.parseString(initial_xml_string + type_xml_string + xml_string)
 	prettyString = dom.toprettyxml()
 	return prettyString
+
+def addSimpleType(erModel):
+	xml = ""
+	allTypes = Type.objects.all()
+	tables = erModel.tables.all()
+	for tp in allTypes:
+		tpName = tp.text
+		tpContent = tp.content
+		for table in tables:
+			for column in table.columns.all():
+				columnTp = column.tp
+				if columnTp == tpName:
+					xml += tpContent
+	return xml
 
 def convertEntity(table):
 	tableName = table.name
