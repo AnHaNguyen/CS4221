@@ -127,6 +127,7 @@ def convertForeignKey(name, referName, selector, foreignKeys):
     return s
 
 def getXMLType(columnType):
+    xType = columnType
     if (columnType == XSDType.STRING):
         xType = "xs:string"
     elif (columnType == XSDType.NUMERIC):
