@@ -33,11 +33,12 @@ def generateXMLSchema(erModel):
     for table in tableList:
         keySet = []
         primKeys = getPrimaryKey(table)
+        #xml_string += "1" + len(primKeys)
         keyName = "NewDataSetKey"+str(i)
         i = i+1
         selector = ".//"+table.name
         xml_string += convertPrimKey(keyName, selector, primKeys)
-        if (table.isEntity == "1"):
+        if (table.isEntity == True):
             keySet.append(keyName)
             keySet.append(table.name)
             keySet.append(str(table.tableId))
