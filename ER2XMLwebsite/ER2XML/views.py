@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from .RelationalXMLSchema import generateXMLSchema
+from .RelationalXMLSchema import generateXMLSchema, generateNestedXMLSchema
 from .Logic import parseXMLString, exportXMLToFile
 import tempfile
 import os
@@ -102,7 +102,10 @@ def model_remove(request, pk):
 
 def schema_save(request, pk):
     model = get_object_or_404(ERModel, pk=pk)
-    xmlString = generateXMLSchema(model)
+
+    # xmlString = generateXMLSchema(model)
+    xmlString = generateNestedXMLSchema(model)
+
     schema= XMLSchema(model=model,text=xmlString)
     schema.save()
     # if request.method == "POST":
