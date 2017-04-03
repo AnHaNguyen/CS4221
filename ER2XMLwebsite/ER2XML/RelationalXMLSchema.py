@@ -1,6 +1,10 @@
 from .models import XSDType, ConstraintType, Table, Column, Type
 from xml.etree import ElementTree
+from collections import deque
 import xml.dom.minidom
+
+# Global dictionary
+tableDictionary = {}
 
 def generateXMLSchema(erModel):
     tableList = erModel.tables.all()
@@ -94,7 +98,7 @@ def convertColumn(column):
     maxOccur = str(column.maxOccur)
 
     s = "<xs:element name=\"" + columnName + "\" type=\"" + xType + "\""
-    
+
     if (minOccur != "1"):
         s += " minOccurs=\"" + minOccur + "\""
     
@@ -187,8 +191,17 @@ def generateNestedXMLSchema(erModel):
     xml_string += complextypeOpen()
     xml_string += choiceOpen("unbounded")
 
+    # store tables in tableDictionary with key as tableId and value as table
     for table in tableList:
-        xml_string += createEntity(table)
+        if (table.isEntity):
+            tableDictionary[str(table.tableId)] = table
+
+    for table in tableList:
+        if (not table.isEntity):
+            # recreate relationships between tables
+            relationships = createRelationships(table)
+
+            xml_string += createNestedEntity(table, relationships)
     
     xml_string += choiceClose()
     xml_string += complextypeClose()
@@ -280,18 +293,47 @@ def elementOpen(name, isDataSet, elementType, maxOccurs, minOccurs):
 def elementClose():
     return "</xs:element>"
 
-def createEntity(table):
+def createRelationships(table):
+    # tableName = table.name
+    relationships = {}
+    columnList = table.columns.all()
+    for column in columnList:
+        constraintList = column.constr.all()
+        for constraint in constraintList:
+            if (constraint.constraintType == ConstraintType.FOREIGN_KEY):
+                referredTableId = constraint.referredTable
+                relationships[str(referredTableId)] = tableDictionary[str(referredTableId)]
+
+    return relationships
+
+def createNestedEntity(table, relationships):
+    queue = deque([])
+    index = 0
+    for key in sorted(relationships.keys()):
+        queue.append(relationships[key])
+        if (index == 0):
+            queue.append(table)
+        index = index + 1
+
+    return createEntity(queue)
+
+def createEntity(queue):
+    table = queue.popleft()
     tableName = table.name
+
     xml = ""
     xml = elementOpen(tableName, "", "", "", "")
     xml += complextypeOpen()
     xml += sequenceOpen()
 
-    # columnList = table.columns.all()
-    # for column in columnList:
-    #     xml += convertColumn(column)
+    columnList = table.columns.all()
+    for column in columnList:
+        xml += convertColumn(column)
 
     # add nested element here
+    if (len(queue) > 0):
+        queue.popleft
+        xml += createEntity(queue)
 
     xml += sequenceClose()
     xml += complextypeClose()
