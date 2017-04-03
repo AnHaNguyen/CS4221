@@ -10,10 +10,9 @@ class ConstraintType(Enum):
 class XSDType(Enum):
     STRING = "xs:string"
     DATE = "xs:date"
-    INTEGER = "xs:integer"
-    DECIMAL = "xs:decimal"
+    NUMERIC = "xs:decimal"
     BOOLEAN = "xs:boolean"
-    SHORT = "xs:short"
+    INTEGER = "xs:integer"
     # Pid = "empid"
 
 class Type(models.Model):
@@ -50,11 +49,10 @@ class XMLSchema(models.Model):
 class Column(models.Model):
     TYPE = (
         (XSDType.STRING,"STRING"),
-        (XSDType.INTEGER, "NUMERIC"),
+        (XSDType.INTEGER, "INTEGER"),
         (XSDType.DATE, "DATE"),
         (XSDType.BOOLEAN, "BOOLEAN"),
-        (XSDType.DECIMAL, "DECIMAL"),
-        (XSDType.SHORT, "SHORT"),
+        (XSDType.NUMERIC, "DECIMAL"),
     )
     table = models.ForeignKey('ER2XML.Table',related_name='columns')
     name = models.CharField(max_length=16)

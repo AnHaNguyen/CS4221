@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from .models import Table, XMLSchema, Column, Constraint, XSDType, ConstraintType, Key
+from .models import Table, XMLSchema, Column, Constraint, XSDType, ConstraintType, Key, Type
 import argparse
 
 def setKey(table, key):
@@ -206,6 +206,11 @@ def getPrimaryKey(table):
     return primKey
 
 def parseType(tp):
+    types = Type.objects.all()
+    for _type in types:
+        if (tp == _type.text):
+            return _type.text
+
     if (tp == 'string'):
         return XSDType.STRING
     elif(tp == 'date'):
@@ -213,12 +218,12 @@ def parseType(tp):
     elif (tp == 'integer'):
         return XSDType.INTEGER
     elif (tp == 'decimal'):
-        return XSDType.DECIMAL
+        return XSDType.NUMERIC
     elif (tp == 'boolean'):
         return XSDType.BOOLEAN
-    elif (tp == 'short'):
-        return XSDType.SHORT
-
+    else:
+        return XSDType.STRING #default
+        
 def generateId(columnList):
     genId = 1
     for column in columnList:
