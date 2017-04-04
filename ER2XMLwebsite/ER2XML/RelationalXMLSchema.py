@@ -325,11 +325,17 @@ def createEntity(queue, index):
         xml += convertColumn(column)
 
     # add nested element here
-    if (index + 1 < len(queue)):
+    if (index + 1 < len(queue) and index + 1 < 3):
         xml += createEntity(queue, index + 1)
 
     xml += sequenceClose()
     xml += complextypeClose()
+
+    # add nested element here
+    # since index 1 will be a relationship table,
+    # all other tables more than 1 will be nested within table index 1 
+    if (index + 1 < len(queue) and index + 1 >= 3):
+        xml += createEntity(queue, index + 1)
 
     # Set primary keys
     xml += getPrimaryKeys(table)
