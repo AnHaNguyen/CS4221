@@ -140,8 +140,8 @@ def processRelationship(relationshipList, tableEntityList, erModel):
             columnType = XSDType.STRING
             isReferredAttribute = False
             isAggregate = False
-            minOccur = 0
-            maxOccur = 2
+            minOccur = 1
+            maxOccur = 1
             for name, value in attribute:
                 if (name == "name"):       
                     isReferredAttribute = False
@@ -168,13 +168,13 @@ def processRelationship(relationshipList, tableEntityList, erModel):
                 column.save()
                 columnList.append(column)
             elif (isReferredAttribute):
-                columnList.extend(getReferredColumn(referredId, tableEntityList, generateId(columnList), table))
+                columnList.extend(getReferredColumn(referredId, tableEntityList, generateId(columnList), table, minOccur, maxOccur))
         
         tableRelationshipList.append(table) 
     
     return tableRelationshipList
 
-def getReferredColumn(entity_id, tableEntityList, nextId, originTable):
+def getReferredColumn(entity_id, tableEntityList, nextId, originTable, minOccur=1, maxOccur=1):
     referredColumns = []
     for table in tableEntityList:
         if (table.tableId == entity_id):
@@ -184,7 +184,7 @@ def getReferredColumn(entity_id, tableEntityList, nextId, originTable):
                 nextId = nextId + 1
                 columnName = column.name
                 columnType = column.tp
-                newColumn = Column(table = originTable, colId = columnId, name = columnName, tp = columnType)
+                newColumn = Column(table = originTable, colId = columnId, name = columnName, tp = columnType, minOccur=minOccur, maxOccur=maxOccur)
                 newColumn.save()
 
                 foreignKeyConstraint = Constraint(column = newColumn, constraintType = ConstraintType.FOREIGN_KEY, referredTable = table.tableId, referredCol = column.colId)
