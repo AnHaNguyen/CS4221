@@ -283,7 +283,13 @@ def parseAndConvertXML(root, erModel):
         for key in table.keys.all():
             print(str(key))
 
+    # format: [[relationTableId, referredTableId...], [relationTableId, referredTableId...]]
+    allNestedList = []
     for table in tableRelationshipList:
+        # format: [relationTableId, referredTableId...]
+        nestedList = []
+        nestedList.append(table.tableId)
+        
         print("RELATIONSHIP TABLE:"+ str(table.tableId), table.name)
         columnList = table.columns.all()
         for column in columnList:
@@ -291,11 +297,11 @@ def parseAndConvertXML(root, erModel):
             constraintList = column.constr.all()
             for constraint in constraintList:
                 print(constraint.constraintType, constraint.referredTable, constraint.referredCol)
+                nestedList.append(constraint.referredTable)
+
+        allNestedList.append(nestedList)
     
-    returnList = []
-    returnList.extend(tableEntityList)
-    returnList.extend(tableRelationshipList)
-    return returnList
+    return allNestedList
 
 # if __name__ == '__main__':
 #     # Environment Setting
