@@ -10,10 +10,10 @@ def generateXMLSchema(erModel):
     tableList = erModel.tables.all()
 
     initial_xml_string = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    initial_xml_string += "<xs:schema id=\"MyDataSet\" xmlns=\"\" "
+    initial_xml_string += "<xs:schema xmlns=\"\" "
     initial_xml_string += "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
     initial_xml_string += "xmlns:msdata=\"urn:schemas-microsoft-com:xml-msdata\">"
-    initial_xml_string += "<xs:element name=\"NewDataSet\" msdata:IsDataSet=\"true\">"
+    initial_xml_string += "<xs:element name=\""+erModel.name+"\" msdata:IsDataSet=\"true\">"
 
     type_xml_string = addSimpleType(erModel)
 
@@ -34,7 +34,7 @@ def generateXMLSchema(erModel):
         keySet = []
         primKeys = getPrimaryKey(table)
         #xml_string += "1" + len(primKeys)
-        keyName = "NewDataSetKey"+str(i)
+        keyName = erModel.name+"Key"+str(i)
         i = i+1
         selector = ".//"+table.name
         xml_string += convertPrimKey(keyName, selector, primKeys)
@@ -106,7 +106,8 @@ def convertColumn(column):
     if (maxOccur != "1"):
         if (maxOccur == "2"):
             maxOccur = "unbounded"
-        s += " maxOccurs=\"" + maxOccur + "\"/>"
+        s += " maxOccurs=\"" + maxOccur + "\""
+    s += "/>"
     return s
 
 def convertPrimKey(keyName, selector, primKeys):
