@@ -5,6 +5,7 @@ from django.template import RequestContext
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from sets import Set
+from django.contrib import messages
 
 from .RelationalXMLSchema import generateXMLSchema, generateNestedXMLSchema
 from .Logic import parseXMLString, exportXMLToFile
@@ -61,22 +62,25 @@ def schema_detail(request, pk):
     # export the selected
     # if nested, select order
     model = get_object_or_404(ERModel, pk=pk)
-    if request.method == "POST":
+    if request.POST:
         if 'Export' in request.POST:
+            choice='Nested'
             form = SchemaForm(request.POST)
             if form.is_valid():
-                exportXMLToFile(model.name+'_schema.xsd', form.fields['text'])
-                messageinfo("The schema has been exported to "+model.name+'_schema.xsd')
+                exportXMLToFile(model.name+'_schema.xsd', str(form.instance.text))
+                messages.info(request, 'The schema has been exported to '+model.name+'_schema.xsd')
         elif 'Nested' in request.POST:
             choice = 'Nested'
             tables = model.tables.all()
             form = SchemaForm(initial={'text':generateNestedXMLSchema(model,[tables[0]])})
         elif 'setOrder' in request.POST:
             choice = 'Nested'
-            tableID = request.GET['rootElement']
-            tables=model.tables.filter(tableId=tableID)
-            print(table)
-            form = SchemaForm(initial={'text':generateNestedXMLSchema(model,[tables[0]])})
+            tables = model.tables.all()
+            # tableIDs = request.POST.getlist['rootElement']
+            # tableID = tableIDs[0]
+            # tables=model.tables.filter(tableId=tableID)
+            # print(table)
+            form = SchemaForm(initial={'text':generateNestedXMLSchema(model,[tables[2]])})
         else:        
             choice = 'Plain'
             form = SchemaForm(initial={'text':generateXMLSchema(model)})
@@ -117,7 +121,6 @@ def schema_save(request, pk):
         tables = model.tables.all()
         re = []
         re.append(tables[0])
-        xmlString = generateNestedXMLSchema(model, re)
     # else:
     #     form = SchemaForm(instance=schema)
     # return render(request, 'ER2XML/schema_save.html', {'form': form})
@@ -125,12 +128,19 @@ def schema_save(request, pk):
     # update primary key
     # Update the not null, primary key, and foreign key to min_occur
     # unique, foreign key, and primary key appear as constraints
-        # for table in tables:
-        #     for column in table.columns.all():
-        #         form = request.POST.get)
-        #         print(form)
+
         pks=request.POST.getlist('primarykey')
-        
+        print(pks)
+        # newpks=[]
+        # for primekey in pks:
+        #     if primekey.is_valid():
+        #         for key in primekey.colIds:
+        #             newpks.append[key]
+        #         columns=primekey.table.columns.all()
+        #         for column in columns:
+        #             for constr in colume.constr.all():
+        #                 if constr.constraintType == ConstraintType.PRIMARY_KEY and 
+
         # for i, form in enumerate(cols):
         #     if form.is_valid():
         #         tables[i]=form.save(commit=False)            
