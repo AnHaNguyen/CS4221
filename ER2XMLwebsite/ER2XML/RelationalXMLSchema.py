@@ -174,7 +174,7 @@ class WeakEntity:
         return self.toEntity;
 
 # Indentation does not work because of Django rendering
-def generateNestedXMLSchema(erModel):
+def generateNestedXMLSchema(erModel, rootElements):
     tableList = erModel.tables.all()
     
     # store tables in tableDictionary with key as tableId and value as table
@@ -183,11 +183,11 @@ def generateNestedXMLSchema(erModel):
         if (table.isEntity):
             tableDictionary[str(table.tableId)] = table
         else:
-            createRelationshipDictionary(rootElement)
+            createRelationshipDictionary(table)
 
     xml_string = ""
     xml_string += xmlDefinitionStart()
-    xml_string += schemaOpen("NewDataSet")
+    xml_string += schemaOpen()
 
     xml_string += elementOpen(
         "NewDataSet",   # name 
@@ -216,13 +216,13 @@ def generateNestedXMLSchema(erModel):
     
     # Retrieve all root elements
     for rootElement in rootElements:
-        if (not table.isEntity):
+        if (not rootElement.isEntity):
             # Recreate relationships from the root element -- is relation table
             relationships = createRelationships(rootElement)
             xml_string += createNestedEntity(rootElement, relationships)
         else:
             # Recreate relationships from the root element -- is entity table
-            relationshipList = relationDictionary[rootElement.tableid]
+            relationshipList = relationDictionary[rootElement.tableId]
             xml_string += createNestedEntity2(rootElement, relationshipList)
 
     xml_string += choiceClose()
@@ -240,8 +240,8 @@ def generateNestedXMLSchema(erModel):
 def xmlDefinitionStart():
     return "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 
-def schemaOpen(id):
-    return "<xs:schema id=\"" + id + "\" xmlns=\"\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:msdata=\"urn:schemas-microsoft-com:xml-msdata\">"
+def schemaOpen():
+    return "<xs:schema xmlns=\"\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:msdata=\"urn:schemas-microsoft-com:xml-msdata\">"
 
 def schemaClose():
     return "</xs:schema>"
@@ -348,7 +348,7 @@ def createNestedEntity(table, relationships):
 
 # table = entity
 def createNestedEntity2(table, relationshipList):
-    table = queue[index]
+    #table = queue[index]
     tableName = table.name
 
     xml = elementOpen(tableName, "", "", "", "")
