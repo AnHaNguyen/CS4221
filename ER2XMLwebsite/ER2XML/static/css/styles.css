@@ -160,8 +160,7 @@ nav, article, nav ul li a,figure{
 article{
 	background-color:#213E4A;
 	margin:3em 0;
-	padding:20px;
-	
+	padding:20px;	
 	text-shadow:0 2px 0 black;
 }
 
@@ -230,4 +229,34 @@ footer a.up{
 	padding:2px;
 	position:relative;
 	font-size:1em;
+}
+
+#upload{
+	left: 50%;
+	text-align: center;
+	position: relative;
+}
+
+#typeEdit{
+	left: 50%;
+	text-align: center;
+	position: relative;
+}
+
+#typeSet{
+	left: 43%;
+	text-align: center;
+	position: relative;
+}
+
+#changeView{
+	left: 41%;
+	text-align: center;
+	position: relative;
+}
+
+#schemaText{
+	height: 100%;
+	width: 100%;
+	position: relative;
 }

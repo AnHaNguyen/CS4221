@@ -1,0 +1,10 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+    <article>
+	    <form method="POST" class="post-form">{% csrf_token %}
+	        {{ form.as_table }}
+	        <button type="submit" class="save btn btn-default">Save</button>
+	    </form>
+    </article>	
+{% endblock %}

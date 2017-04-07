@@ -1,2 +1,3 @@
 enum
 lxml==3.6.0
+django-formset-js
