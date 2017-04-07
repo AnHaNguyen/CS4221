@@ -104,7 +104,8 @@ def schema_save(request, pk):
     model = get_object_or_404(ERModel, pk=pk)
 
     # xmlString = generateXMLSchema(model)
-    xmlString = generateNestedXMLSchema(model)
+    re = []
+    xmlString = generateNestedXMLSchema(model, re)
 
     schema= XMLSchema(model=model,text=xmlString)
     schema.save()
