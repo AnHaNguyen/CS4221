@@ -105,6 +105,7 @@ def schema_save(request, pk):
 
     # xmlString = generateXMLSchema(model)
     re = []
+    re.append(model.tables.all()[0])
     xmlString = generateNestedXMLSchema(model, re)
 
     schema= XMLSchema(model=model,text=xmlString)
