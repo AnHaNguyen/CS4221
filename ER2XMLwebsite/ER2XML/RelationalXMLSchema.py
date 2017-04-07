@@ -174,9 +174,11 @@ class WeakEntity:
         return self.toEntity;
 
 # Indentation does not work because of Django rendering
-def generateNestedXMLSchema(erModel, rootElements):
+def generateNestedXMLSchema(erModel, rootElements=None):
     tableList = erModel.tables.all()
-    
+    if (rootElements is None):
+    	rootElements = []
+    	rootElements.append(tableList[0])
     # store tables in tableDictionary with key as tableId and value as table
     # store tables in relationDictionary with key as relatedTableId and value as [relationTable(s)]
     for table in tableList:
