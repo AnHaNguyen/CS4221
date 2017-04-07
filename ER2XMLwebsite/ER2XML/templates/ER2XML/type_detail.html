@@ -1,0 +1,13 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+    <article>
+        <h2>{{ customType.name }}</a></h2>
+        <p />
+        <p><b> Text: </b></p>
+        <p style="margin-left: 40px">{{ customType.text }}</p>
+        <p><b> Content: </b></p>
+        <pre style="margin-left: 40px">{{ customType.content }}</pre>
+        <a href="{% url 'type_edit' pk=customType.pk %}" ><button class="btn btn-default" id="typeEdit">Edit</button></a>
+    </article>
+{% endblock %}

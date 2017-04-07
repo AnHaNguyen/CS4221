@@ -86,7 +86,6 @@ def processEntity(entityList,erModel):
             foreignKey.save()
             columnId = columnId + 1
      
-    
     for i in range(len(tableKeyList)):
         table = tableEntityList[i]
         keyList = tableKeyList[i]

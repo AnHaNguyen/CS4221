@@ -1,17 +1,37 @@
 {% extends 'ER2XML/base.html' %}
-
+{% load custom_template_tag %}
 {% block content %}
-    {% for key, value in forms.items %}
-    	<article>
-	    	<h1> {{ key }} </h1>
-	    	<form action='{% url "schema_save" pk=pk%}' method="POST" class="post-form">{% csrf_token %}
+	<article>
+		<form action='{% url "schema_save" pk=pk%}' method="POST" class="form-inline">{% csrf_token %}
+            {% for key, value in forms.items %}
+	            <b>{{ key }}<b><p/>
 	            {% for form in value %}
-	            	{{ form.as_p }}
-	            	<div class="line"></div>
+		            <div class="form-group" name="{{ key }}{{ form.instance.name }}" >
+		            	{{ form.errors }}
+		            	{{ form.label_tag }}
+		            	{{ form.as_table }}
+		            </div>
 	            {% endfor %}
-	            <button type="submit" class="save btn btn-default">Save</button>
-        	</form>
-        </article>
-    {% endfor %}
-    
+	            {% get_item candikeys key as keys %}
+	            {% if keys %}
+		            <label>PK</label>
+	                <select name="primarykey">
+	                    {%for item in keys %}
+	                    	<option value={{item.pk}}>{{item.colNames}}</option>
+	                    {% endfor %}
+	                </select>
+                {% endif %}
+	            {% get_item fts key as ts %}
+	            {% if ts %}
+	            	<p>Referenced Elements: 
+                    {%for item in ts %}
+                    	{{item}}
+                    {% endfor %}
+                    </p>
+				{% endif %}
+                <div class="line"></div>
+			{% endfor %}
+            <button type="submit" class="save btn btn-default">Save</button>
+        </form>
+    </article>
 {% endblock %}

@@ -39,6 +39,9 @@ class Table(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        unique_together = (("tableId","model"))
+
 class XMLSchema(models.Model):
     model = models.ForeignKey('ER2XML.ERModel',related_name='schema')
     text = models.TextField(null=True)
@@ -57,8 +60,8 @@ class Column(models.Model):
     table = models.ForeignKey('ER2XML.Table',related_name='columns')
     name = models.CharField(max_length=16)
     tp = models.CharField(max_length = 10, default = XSDType.STRING)
-    minOccur = models.IntegerField(null=True, default = 1)
-    maxOccur = models.IntegerField(null=True, default = 1)
+    minOccur = models.IntegerField(default = 1)
+    maxOccur = models.IntegerField(default = 1)
     colId = models.CharField(max_length=3)
     def __str__(self):
         return self.name
@@ -87,9 +90,3 @@ class Key(models.Model):
     colNames = models.CharField(max_length=50)  #for single key: "SName", for composite key: "SName,Matric"
     def __str__(self):
         return self.colNames
-
-# class XMLAttribute(models.Model):
-#     xElement
-#     name
-#     type
-#     use

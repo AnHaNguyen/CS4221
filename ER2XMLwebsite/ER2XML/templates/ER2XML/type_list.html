@@ -1,0 +1,38 @@
+{% extends 'ER2XML/base.html' %}
+
+{% block content %}
+	<article class="large-16 large-24 columns">
+		<form  action='{% url "type_set" %}' method="POST" class="post-form">{% csrf_token %}
+			<table align="center" width=100%>
+				<tbody>
+					<thead align="center">
+		                <tr>
+		                    <th>Type Name</th>
+		                    <th>Text</th>
+		                    <th>Included</th>
+		                    <th></th>
+		                    <th></th>
+		                </tr>
+		            </thead>
+					{% for id, customType in enumTypes %}
+						<tr>		
+						  	<th><label for="option{{customType.id}}"><b><a href="{% url 'type_detail' pk=customType.pk %}">{{ customType.name }}</a></b></label></th>
+							<th>"{{ customType.text|truncatechars:16}}"</th>
+							{% if id in selected %}
+								<th><input type="checkbox" name="selected" id="option{{customType.pk}}" value={{customType.pk}} checked="checked" /></th>
+							{% else %}
+								<th><input type="checkbox" name="selected" id="option{{customType.pk}}" value={{customType.pk}} /></th>
+							{% endif %}
+							<th><a class="btn btn-default" href="{% url 'type_edit' pk=customType.pk %}">Edit</a></th>
+							<th><a class="btn btn-default" href="{% url 'type_remove' pk=customType.pk %}">Delete</a></th>
+						</tr>
+			        {% endfor %}
+		        </tbody>
+	        </table>
+	        <button type="submit" class="btn btn-default" name="typeSet" id="typeSet">Save Settings</button>
+	        <button type="submit" class="btn btn-default" name="typeReset" id="typeSet">Reset</button>
+        </form>
+        <p/>
+        <center><a class="btn btn-default" href="{% url 'type_add' %}">Add Custom Type</a></center>
+    </article>
+{% endblock %}

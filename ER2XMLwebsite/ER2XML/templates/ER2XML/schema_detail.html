@@ -2,7 +2,22 @@
 
 {% block content %}
     <article>
-        <h1><a href="{% url 'schema_detail' pk=schema.pk %}">XML Schema for {{ schema.model.name }}</a></h1>
-        <p>{{ schema.text|linebreaksbr }}</p>
+        <h2>{{choice}} XML Schema for {{ name }}</h2>
+        <form action='{% url "schema_detail" pk=pk%}' method="POST" id="schemaText" class="post-form">{% csrf_token %}
+        	{{form.text}}
+        	<button type="submit" class="btn btn-default" id="typeSet" name="Export">Export</button><p />
+	      	{% if choice == "Nested" %}
+	            <label>Select Root Element</label>
+                <select name="rootElement">
+                	<option value='0'>Student</option>
+                	<option value='1'>Studentof</option>
+                	<option value='2'>University</option>
+                </select>
+                <button type="submit" class="btn btn-default" id="changeView" name="Set">Set Order</button>
+	      		<button type="submit" class="btn btn-default" id="changeView" name="Plain">Plain View</button>
+	      	{% endif %}
+	        {% if choice == "Plain" %}<button type="submit" class="btn btn-default" id="changeView" name="Nested">Nested View</button>{% endif %}
+        </form>
+
     </article>
 {% endblock %}
