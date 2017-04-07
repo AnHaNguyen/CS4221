@@ -5,6 +5,7 @@ import xml.dom.minidom
 
 # Global dictionary
 tableDictionary = {}
+relationDictionary = {}
 
 def generateXMLSchema(erModel):
     tableList = erModel.tables.all()
@@ -175,10 +176,18 @@ class WeakEntity:
 # Indentation does not work because of Django rendering
 def generateNestedXMLSchema(erModel):
     tableList = erModel.tables.all()
+    
+    # store tables in tableDictionary with key as tableId and value as table
+    # store tables in relationDictionary with key as relatedTableId and value as [relationTable(s)]
+    for table in tableList:
+        if (table.isEntity):
+            tableDictionary[str(table.tableId)] = table
+        else:
+            createRelationshipDictionary(rootElement)
 
     xml_string = ""
     xml_string += xmlDefinitionStart()
-    xml_string += schemaOpen("MyDataSet")
+    xml_string += schemaOpen("NewDataSet")
 
     xml_string += elementOpen(
         "NewDataSet",   # name 
@@ -193,18 +202,29 @@ def generateNestedXMLSchema(erModel):
     xml_string += complextypeOpen()
     xml_string += choiceOpen("unbounded")
 
-    # store tables in tableDictionary with key as tableId and value as table
-    for table in tableList:
-        if (table.isEntity):
-            tableDictionary[str(table.tableId)] = table
+    # # store tables in tableDictionary with key as tableId and value as table
+    # for table in tableList:
+    #     if (table.isEntity):
+    #         tableDictionary[str(table.tableId)] = table
 
-    for table in tableList:
-        if (not table.isEntity):
-            # recreate relationships between tables
-            relationships = createRelationships(table)
+    # for table in tableList:
+    #     if (not table.isEntity):
+    #         # recreate relationships between tables
+    #         relationships = createRelationships(table)
 
-            xml_string += createNestedEntity(table, relationships)
+    #         xml_string += createNestedEntity(table, relationships)
     
+    # Retrieve all root elements
+    for rootElement in rootElements:
+        if (not table.isEntity):
+            # Recreate relationships from the root element -- is relation table
+            relationships = createRelationships(rootElement)
+            xml_string += createNestedEntity(rootElement, relationships)
+        else:
+            # Recreate relationships from the root element -- is entity table
+            relationshipList = relationDictionary[rootElement.tableid]
+            xml_string += createNestedEntity2(rootElement, relationshipList)
+
     xml_string += choiceClose()
     xml_string += complextypeClose()
     
@@ -269,6 +289,21 @@ def elementOpen(name, isDataSet, elementType, maxOccurs, minOccurs):
 def elementClose():
     return "</xs:element>"
 
+def createRelationshipDictionary(relationTable):
+    columnList = relationTable.columns.all()
+    for column in columnList:
+        constraintList = column.constr.all()
+        for constraint in constraintList:
+            if (constraint.constraintType == ConstraintType.FOREIGN_KEY):
+                referredTableId = constraint.referredTable
+                relationTableList = []
+                if str(referredTableId) in relationDictionary:
+                    # Merge list (extend) then add (append) relationTable
+                    relationTableList.extend(relationDictionary[str(referredTableId)])
+                
+                relationTableList.append(relationTable)
+                relationDictionary[str(referredTableId)] = relationTableList
+
 def createRelationships(table):
     relationships = {}
     columnList = table.columns.all()
@@ -297,23 +332,22 @@ def getForeignKeys(table, otherTable):
     if (len(foreignKeys) > 0):
         name = table.name + "To" + otherTable.name + "Ref"
         selector = ".//" + table.name
-        keyName =  "MyDataSet" + "Key" + str(otherTable.name)
+        keyName =  "NewDataSet" + "Key" + str(otherTable.name)
         xml += convertForeignKey(name, keyName, selector, foreignKeys)
 
     return xml
 
+# Modified - table = relation
 def createNestedEntity(table, relationships):
     queue = deque([])
-    index = 0
-    for key in sorted(relationships.keys()):
+    queue.append(table)
+    for key in relationships.keys():
         queue.append(relationships[key])
-        if (index == 0):
-            queue.append(table)
-        index = index + 1
 
     return createEntity(queue, 0)
 
-def createEntity(queue, index):
+# table = entity
+def createNestedEntity2(table, relationshipList):
     table = queue[index]
     tableName = table.name
 
@@ -326,8 +360,37 @@ def createEntity(queue, index):
         xml += convertColumn(column)
 
     # add nested element here
-    if (index + 1 < len(queue) and index + 1 < 3):
-        xml += createEntity(queue, index + 1)
+    for relationship in relationshipList:
+        relationships = createRelationships(relationship)
+        del relationships[str(table.tableId)]
+        queue = deque([])
+        queue.append(relationship)
+        for key in relationships.keys():
+            queue.append(relationships[key])
+        xml += createEntity2(queue, 0)
+
+    xml += sequenceClose()
+    xml += complextypeClose()
+
+    # Set primary keys
+    xml += getPrimaryKeys(table)
+        
+    xml += elementClose()
+
+    return xml
+
+# Modified - for if the first in queue is a relation table
+def createEntity(queue, index):
+    table = queue[index]
+    tableName = table.name
+
+    xml = elementOpen(tableName, "", "", "", "")
+    xml += complextypeOpen()
+    xml += sequenceOpen()
+
+    columnList = table.columns.all()
+    for column in columnList:
+        xml += convertColumn(column)
 
     xml += sequenceClose()
     xml += complextypeClose()
@@ -335,18 +398,99 @@ def createEntity(queue, index):
     # add nested element here
     # since index 1 will be a relationship table,
     # all other tables more than 1 will be nested within table index 1 
-    if (index + 1 < len(queue) and index + 1 >= 3):
+    if (index + 1 < len(queue)):
         xml += createEntity(queue, index + 1)
 
     # Set primary keys
     xml += getPrimaryKeys(table)
-
-    # Set foreign keys
-    if (not table.isEntity and index - 1 > -1):
-        xml += getForeignKeys(table, queue[index - 1])
-    if (not table.isEntity and index + 1 < len(queue)):
-        xml += getForeignKeys(table, queue[index + 1])
         
     xml += elementClose()
 
     return xml
+
+# Modified - for if the first in queue is an entity table
+def createEntity2(queue, index):
+    table = queue[index]
+    tableName = table.name
+
+    xml = elementOpen(tableName, "", "", "", "")
+    xml += complextypeOpen()
+    xml += sequenceOpen()
+
+    columnList = table.columns.all()
+    for column in columnList:
+        xml += convertColumn(column)
+
+    # add nested element here
+    if (index + 1 < len(queue) and index + 1 < 2):
+        xml += createEntity2(queue, index + 1)
+
+    xml += sequenceClose()
+    xml += complextypeClose()
+
+    # add nested element here
+    # since index 1 will be a relationship table,
+    # all other tables more than 1 will be nested within table index 1 
+    if (index + 1 < len(queue) and index + 1 >= 2):
+        xml += createEntity2(queue, index + 1)
+
+    # Set primary keys
+    xml += getPrimaryKeys(table)
+        
+    xml += elementClose()
+
+    return xml
+
+
+
+
+
+
+# def createNestedEntity(table, relationships):
+#     queue = deque([])
+#     index = 0
+#     for key in sorted(relationships.keys()):
+#         queue.append(relationships[key])
+#         if (index == 0):
+#             queue.append(table)
+#         index = index + 1
+
+#     return createEntity(queue, 0)
+
+# def createEntity(queue, index):
+#     table = queue[index]
+#     tableName = table.name
+
+#     xml = elementOpen(tableName, "", "", "", "")
+#     xml += complextypeOpen()
+#     xml += sequenceOpen()
+
+#     columnList = table.columns.all()
+#     for column in columnList:
+#         xml += convertColumn(column)
+
+#     # add nested element here
+#     if (index + 1 < len(queue) and index + 1 < 3):
+#         xml += createEntity(queue, index + 1)
+
+#     xml += sequenceClose()
+#     xml += complextypeClose()
+
+#     # add nested element here
+#     # since index 1 will be a relationship table,
+#     # all other tables more than 1 will be nested within table index 1 
+#     if (index + 1 < len(queue) and index + 1 >= 3):
+#         xml += createEntity(queue, index + 1)
+
+#     # Set primary keys
+#     xml += getPrimaryKeys(table)
+
+#     # Set foreign keys
+#     if (not table.isEntity and index - 1 > -1):
+#         xml += getForeignKeys(table, queue[index - 1])
+#     if (not table.isEntity and index + 1 < len(queue)):
+#         xml += getForeignKeys(table, queue[index + 1])
+        
+#     xml += elementClose()
+
+#     return xml
