@@ -302,7 +302,7 @@ def createRelationshipDictionary(relationTable):
                     relationTableList = relationDictionary[str(referredTableId)]
                     add = True
                     for relationTableListItem in relationTableList:
-                        if (relationTableListItem == relationTableList):
+                        if (relationTableListItem == relationTable):
                             add = False
                     if (add):
                         relationTableList.extend(relationDictionary[str(referredTableId)])
