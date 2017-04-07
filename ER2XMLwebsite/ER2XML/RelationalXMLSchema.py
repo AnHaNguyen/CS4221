@@ -105,7 +105,7 @@ def convertColumn(column):
         s += " minOccurs=\"" + minOccur + "\""
     
     if (maxOccur != "1"):
-        if (maxOccur == "2"):
+        if (maxOccur == "-1"):
             maxOccur = "unbounded"
         s += " maxOccurs=\"" + maxOccur + "\""
     s += "/>"

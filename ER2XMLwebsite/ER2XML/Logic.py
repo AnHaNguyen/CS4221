@@ -159,7 +159,7 @@ def processRelationship(relationshipList, tableEntityList, erModel):
                     minOccur = int(value)
                 elif (name == "max_participation"):
                     if (value == "N"):
-                        maxOccur = 2
+                        maxOccur = -1
                     else:
                         maxOccur = int(value)
 
