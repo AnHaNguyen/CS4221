@@ -299,10 +299,16 @@ def createRelationshipDictionary(relationTable):
                 relationTableList = []
                 if str(referredTableId) in relationDictionary:
                     # Merge list (extend) then add (append) relationTable
-                    relationTableList.extend(relationDictionary[str(referredTableId)])
-                
-                relationTableList.append(relationTable)
-                relationDictionary[str(referredTableId)] = relationTableList
+                    relationTableList = relationDictionary[str(referredTableId)]
+                    add = True
+                    for relationTableListItem in relationTableList:
+                        if (relationTableListItem == relationTableList):
+                            add = False
+                    if (add):
+                        relationTableList.extend(relationDictionary[str(referredTableId)])
+                else:
+                    relationTableList.append(relationTable)
+                    relationDictionary[str(referredTableId)] = relationTableList
 
 def createRelationships(table):
     relationships = {}
